@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATV Inspection System - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-links button:hover,
+        .nav-links button.active {
+            background: white;
+            color: #FF6B35;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* STAFF FORM SCREEN */
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 28px;
+            color: #FF6B35;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .photo-button {
+            background: #FF6B35;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .photo-button:hover {
+            background: #FF8C5A;
+        }
+
+        .photo-taken {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .checks-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .check-group {
+            margin-bottom: 15px;
+        }
+
+        .check-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .check-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-ok {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-ok:hover {
+            background: #45a049;
+        }
+
+        .btn-ok.active {
+            background: #2E7D32;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-issue {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-issue:hover {
+            background: #da190b;
+        }
+
+        .btn-issue.active {
+            background: #a71d0c;
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+        }
+
+        .quick-tip {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .photo-badge {
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .photo-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .section-title {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn-photo {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-photo:hover {
+            background: #0b7dda;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .btn-submit-enabled {
+            background: #4CAF50 !important;
+        }
+
+        .btn-submit-disabled {
+            background: #f44336 !important;
+            opacity: 0.7 !important;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* DASHBOARD SCREEN */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 32px;
+            color: #FF6B35;
+        }
+
+        .refresh-btn {
+            background: #FF6B35;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab-btn:hover {
+            color: #FF6B35;
+        }
+
+        .tab-btn.active {
+            color: #FF6B35;
+            border-bottom-color: #FF6B35;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Alerts Section */
+        .alerts-container {
+            margin-top: 20px;
+        }
+
+        .alert {
+            background: white;
+            border-left: 5px solid;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .alert.critical {
+            border-left-color: #f44336;
+        }
+
+        .alert.high {
+            border-left-color: #ff9800;
+        }
+
+        .alert.medium {
+            border-left-color: #ffc107;
+        }
+
+        .alert.low {
+            border-left-color: #4caf50;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .alert-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .alert.critical .alert-badge {
+            background: #f44336;
+        }
+
+        .alert.high .alert-badge {
+            background: #ff9800;
+        }
+
+        .alert.medium .alert-badge {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .alert.low .alert-badge {
+            background: #4caf50;
+        }
+
+        .alert-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .alert-action {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert-btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .alert-btn:hover {
+            background: #FF8C5A;
+        }
+
+        /* Fleet Status Table */
+        .fleet-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+        }
+
+        .status-ready {
+            background: #4caf50;
+        }
+
+        .status-issues {
+            background: #ff9800;
+        }
+
+        .status-unsafe {
+            background: #f44336;
+        }
+
+        /* Inspection Details */
+        .inspection-detail {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .inspection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .inspection-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .inspection-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .check-result {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .check-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .check-value {
+            color: #FF6B35;
+            font-weight: bold;
+        }
+
+        .check-value.good {
+            color: #4caf50;
+        }
+
+        .check-value.issue {
+            color: #f44336;
+        }
+
+        /* Photos */
+        .photo-section {
+            margin-top: 15px;
+        }
+
+        .photo-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .photo-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* Remarks */
+        .remarks {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .remarks-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .remarks-text {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            padding: 15px 0 15px 50px;
+            position: relative;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            background: #FF6B35;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #FF6B35;
+        }
+
+        .timeline-time {
+            font-weight: bold;
+            color: #FF6B35;
+            font-size: 12px;
+        }
+
+        .timeline-text {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            td, th {
+                padding: 10px;
+            }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #1976d2;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <h1>🚗 ATV Inspection System</h1>
+        <div class="nav-links">
+            <button onclick="showScreen('login')" class="nav-btn active">Home</button>
+            <button onclick="showScreen('staff-form')" class="nav-btn">Staff Form</button>
+            <button onclick="showScreen('dashboard')" class="nav-btn">Dashboard</button>
+            <button onclick="showScreen('workflow')" class="nav-btn">Workflow</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- LOGIN SCREEN -->
+        <div id="login" class="screen active">
+            <div class="form-container">
+                <h1 class="form-title">🚗 ATV Inspection System</h1>
+                <p class="form-subtitle">Interactive Demo</p>
+
+                <div class="info-box">
+                    <strong>Welcome!</strong> This is an interactive demonstration of the complete ATV inspection system.
+                </div>
+
+                <div style="text-align: center;">
+                    <p style="margin-bottom: 20px; color: #666;">Select your role to continue:</p>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                        <button onclick="showScreen('staff-form')" class="submit-btn" style="flex: 1; min-width: 150px;">
+                            👷 I'm Staff<br><small style="font-size: 12px; opacity: 0.9;">Fill inspection form</small>
+                        </button>
+                        <button onclick="showScreen('dashboard')" class="submit-btn" style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%);">
+                            👔 I'm Manager<br><small style="font-size: 12px; opacity: 0.9;">View dashboard</small>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <h3 style="color: #333; margin-bottom: 15px;">📊 System Features:</h3>
+                    <ul style="text-align: left; color: #666; line-height: 2;">
+                        <li>✅ Mobile inspection forms (5 min per ATV)</li>
+                        <li>✅ Real-time manager dashboard</li>
+                        <li>✅ Predictive maintenance alerts</li>
+                        <li>✅ Photo documentation</li>
+                        <li>✅ Complete audit trail</li>
+                        <li>✅ Staff accountability</li>
+                        <li>✅ Zero monthly cost</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAFF INSPECTION FORM -->
+        <div id="staff-form" class="screen">
+            <div class="form-container">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="showScreen('login')" class="secondary-btn">← Back to Home</button>
+                </div>
+
+                <h1 class="form-title">📋 Daily ATV Inspection</h1>
+                <p class="form-subtitle">Please complete this inspection before using the ATV</p>
+
+                <form id="inspectionForm">
+                    <!-- Basic Info -->
+                    <div class="form-group">
+                        <label for="staff_name">👤 Staff Name *</label>
+                        <input type="text" id="staff_name" placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="atv_id">🏍️ ATV ID *</label>
+                        <select id="atv_id" required>
+                            <option value="">-- Select ATV --</option>
+                            <option value="ATV-01">ATV-01</option>
+                            <option value="ATV-05">ATV-05</option>
+                            <option value="Gova-7">Gova-7</option>
+                            <option value="Syafiq-8">Syafiq-8</option>
+                            <option value="Mike-9">Mike-9</option>
+                            <option value="Mirza-10">Mirza-10</option>
+                            <option value="Ummu-11">Ummu-11</option>
+                            <option value="Ira-12">Ira-12</option>
+                            <option value="Vernon-13">Vernon-13</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">📅 Date *</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <!-- Pre-Ride Photo -->
+                    <div class="form-group">
+                        <label id="photo_label" style="display: flex; justify-content: space-between; align-items: center;">
+                            📷 Pre-Ride Photo
+                            <span class="photo-badge" style="margin: 0;">REQUIRED</span>
+                        </label>
+                        <button type="button" class="btn-photo" onclick="takePhoto('preride')">📷 Take Pre-Ride Photo</button>
+                        <div class="photo-status" id="photo_preride"></div>
+                    </div>
+
+                    <!-- Safety Checks -->
+                    <div class="section-title">🔒 SAFETY CHECKS</div>
+
+                    <div class="check-group">
+                        <label>🔧 Engine Starts & Idles</label>
+                        <div class="quick-tip">Does it start easily? Does it idle smoothly?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('engine_check', true)">✓ Good</button>
+                            <button type="button" class="btn-issue" onclick="setField('engine_check', false)">✗ Issue</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>🛑 Brakes Responsive</label>
+                        <div class="quick-tip">Do brakes stop the ATV firmly? Any soft or spongy feeling?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('brakes_check', true)">✓ Good</button>
+                            <button type="button" class="btn-issue" onclick="setField('brakes_check', false)">✗ Issue</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>🛞 Tires Condition</label>
+                        <div class="quick-tip">Check for wear, cracks, or punctures</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('tires_check', true)">✓ Good</button>
+                            <button type="button" class="btn-issue" onclick="setField('tires_check', false)">✗ Issue</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>💡 Lights Working</label>
+                        <div class="quick-tip">Headlight, taillight, brake light all working?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('lights_check', true)">✓ Yes</button>
+                            <button type="button" class="btn-issue" onclick="setField('lights_check', false)">✗ No</button>
+                        </div>
+                    </div>
+
+                    <!-- Performance Checks -->
+                    <div class="section-title">⚡ PERFORMANCE CHECKS</div>
+
+                    <div class="check-group">
+                        <label>🎚️ Throttle Response</label>
+                        <div class="quick-tip">Does throttle move smoothly? Any resistance?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('throttle_check', true)">✓ Smooth</button>
+                            <button type="button" class="btn-issue" onclick="setField('throttle_check', false)">✗ Stiff</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>🚀 Acceleration</label>
+                        <div class="quick-tip">Does it accelerate quickly? Any delays?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('acceleration_check', true)">✓ Normal</button>
+                            <button type="button" class="btn-issue" onclick="setField('acceleration_check', false)">✗ Weak</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>🎯 Steering Feel</label>
+                        <div class="quick-tip">Does steering feel tight? Any play or looseness?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('steering_check', true)">✓ Smooth</button>
+                            <button type="button" class="btn-issue" onclick="setField('steering_check', false)">✗ Problem</button>
+                        </div>
+                    </div>
+
+                    <div class="check-group">
+                        <label>🔊 No Unusual Noises</label>
+                        <div class="quick-tip">Any strange sounds? (knocking, grinding, rattling)?</div>
+                        <div class="check-buttons">
+                            <button type="button" class="btn-ok" onclick="setField('noises_check', true)">✓ Quiet</button>
+                            <button type="button" class="btn-issue" onclick="setField('noises_check', false)">✗ Strange Noise</button>
+                        </div>
+                    </div>
+
+                    <!-- Overall Condition -->
+                    <div class="section-title">📊 FINAL ASSESSMENT</div>
+
+                    <div class="form-group">
+                        <label>🏍️ Overall Condition</label>
+                        <div class="quick-tip">Based on all checks - can ATV run today? Will it be safe for riders?</div>
+                        <select id="overall_condition" onchange="updateFormStatus()">
+                            <option value="">-- Select --</option>
+                            <option value="ready">✓ Ready to Ride (All good, no issues)</option>
+                            <option value="issues">⚠️ Has Issues (Can run, but needs repair soon)</option>
+                            <option value="unsafe">🚫 Unsafe - Do Not Ride (Critical problem)</option>
+                        </select>
+                    </div>
+
+                    <!-- Defects Found (Conditional) -->
+                    <div class="form-group">
+                        <label id="remarks_label">📝 Defects/Issues Found
+                            <span id="remarks_badge" class="hidden photo-badge">REQUIRED</span>
+                        </label>
+                        <textarea id="remarks" placeholder="List any defects found (throttle stiff, brakes weak, steering loose, noises, etc.)..." style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; min-height: 80px; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+
+                    <!-- Issue Photo (Conditional) -->
+                    <div class="form-group">
+                        <label id="issue_photo_label">📸 Defect Photo (Document the issue)
+                            <span id="issue_photo_badge" class="hidden photo-badge">REQUIRED</span>
+                        </label>
+                        <button type="button" class="btn-photo hidden" id="issue_photo_btn" onclick="takePhoto('issue')">📷 Take Photo of Defect</button>
+                        <div class="photo-status" id="photo_issue"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="submit-btn btn-submit-disabled" disabled style="width: 100%; padding: 15px; margin-top: 20px; font-size: 16px;">
+                        🔴 COMPLETE CHECK (Answer All Items First)
+                    </button>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="background: #4CAF50; color: white; padding: 20px; border-radius: 5px; text-align: center; margin-top: 20px; display: none;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">✓</div>
+                    <strong>Daily Check Completed Successfully</strong>
+                    <p>ATV condition recorded and locked</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGER DASHBOARD -->
+        <div id="dashboard" class="screen">
+            <div style="text-align: right; margin-bottom: 20px;">
+                <button onclick="showScreen('login')" class="secondary-btn">← Back to Home</button>
+            </div>
+
+            <div class="dashboard-header">
+                <h2>📊 Admin Dashboard</h2>
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Today's Inspections</h3>
+                    <div class="number">15</div>
+                    <div class="label">completed</div>
+                </div>
+                <div class="summary-card">
+                    <h3>✅ Ready to Ride</h3>
+                    <div class="number">12</div>
+                    <div class="label">92% - All good</div>
+                </div>
+                <div class="summary-card">
+                    <h3>⚠️ Has Issues</h3>
+                    <div class="number">2</div>
+                    <div class="label">15% - Needs repair</div>
+                </div>
+                <div class="summary-card">
+                    <h3>🚫 Unsafe</h3>
+                    <div class="number">1</div>
+                    <div class="label">7% - Do not operate</div>
+                </div>
+                <div class="summary-card">
+                    <h3>🚨 Critical Alerts</h3>
+                    <div class="number">3</div>
+                    <div class="label">Action required</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Overview</button>
+                <button class="tab-btn" onclick="switchTab('fleet', this)">🚗 Fleet Status</button>
+                <button class="tab-btn" onclick="switchTab('history', this)">📋 Inspection History</button>
+                <button class="tab-btn" onclick="switchTab('alerts', this)">🚨 Alerts & Maintenance</button>
+            </div>
+
+            <!-- TAB: Overview -->
+            <div id="overview" class="tab-content active">
+                <h3 style="margin-bottom: 20px; color: #FF6B35;">🔴 Critical Alerts (Action Required)</h3>
+
+                <div class="alerts-container">
+                    <div class="alert critical">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🔴 Mike-9 - Brakes Weak (SAFETY ISSUE)</div>
+                                <div class="alert-content">Brakes not responsive - DO NOT OPERATE</div>
+                            </div>
+                            <div class="alert-badge">CRITICAL</div>
+                        </div>
+                        <div class="alert-content" style="margin-top: 10px;">
+                            <strong>Issue Found:</strong> 5:45 AM by Hassan<br>
+                            <strong>Probability:</strong> 100% (Safety issue)<br>
+                            <strong>Action:</strong> Do not operate until repaired
+                        </div>
+                        <div class="alert-action">
+                            <button class="alert-btn">Schedule Repair</button>
+                            <button class="alert-btn">View Photos</button>
+                        </div>
+                    </div>
+
+                    <div class="alert high">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🟠 Gova-7 - Throttle Cable Deteriorating</div>
+                                <div class="alert-content">2nd throttle issue in 7 days - worsening trend detected</div>
+                            </div>
+                            <div class="alert-badge">HIGH</div>
+                        </div>
+                        <div class="alert-content" style="margin-top: 10px;">
+                            <strong>Issue Found:</strong> 7:08 AM by Budi Hassan<br>
+                            <strong>Probability:</strong> 75% failure in 3 days<br>
+                            <strong>Trend:</strong> Aug 9 (stiff) → Aug 15 (OK) → Aug 18 (stiff, worse)<br>
+                            <strong>Action:</strong> REPAIR TODAY to prevent breakdown
+                        </div>
+                        <div class="alert-action">
+                            <button class="alert-btn">Schedule Repair</button>
+                            <button class="alert-btn">View Photos</button>
+                        </div>
+                    </div>
+
+                    <div class="alert high">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🟠 New-3 - Engine Knocking Sound</div>
+                                <div class="alert-content">Engine making unusual knocking sound</div>
+                            </div>
+                            <div class="alert-badge">HIGH</div>
+                        </div>
+                        <div class="alert-content" style="margin-top: 10px;">
+                            <strong>Issue Found:</strong> 6:15 AM by Rudi<br>
+                            <strong>Probability:</strong> 60% significant issue<br>
+                            <strong>Action:</strong> Schedule diagnostic within 24 hours
+                        </div>
+                        <div class="alert-action">
+                            <button class="alert-btn">Schedule Repair</button>
+                            <button class="alert-btn">View Photos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: #FF6B35;">📊 Fleet Quick View</h3>
+
+                <div class="fleet-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ATV ID</th>
+                                <th>Status</th>
+                                <th>Last Check</th>
+                                <th>Staff</th>
+                                <th>Alert</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ATV-01</strong></td>
+                                <td><span class="status-badge status-ready">✅ Ready</span></td>
+                                <td>6:45 AM</td>
+                                <td>Budi Hassan</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ATV-05</strong></td>
+                                <td><span class="status-badge status-ready">✅ Ready</span></td>
+                                <td>7:00 AM</td>
+                                <td>Rudi Suherman</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gova-7</strong></td>
+                                <td><span class="status-badge status-issues">⚠️ Issues</span></td>
+                                <td>7:08 AM</td>
+                                <td>Budi Hassan</td>
+                                <td>🟠 HIGH</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mike-9</strong></td>
+                                <td><span class="status-badge status-unsafe">🚫 Unsafe</span></td>
+                                <td>5:45 AM</td>
+                                <td>Hassan</td>
+                                <td>🔴 CRIT</td>
+                            </tr>
+                            <tr>
+                                <td><strong>New-3</strong></td>
+                                <td><span class="status-badge status-issues">⚠️ Issues</span></td>
+                                <td>6:15 AM</td>
+                                <td>Rudi</td>
+                                <td>🟠 HIGH</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Fleet Status -->
+            <div id="fleet" class="tab-content">
+                <h3 style="margin-bottom: 20px;">🚗 All ATVs - Current Status</h3>
+
+                <div class="fleet-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ATV</th>
+                                <th>Status</th>
+                                <th>Last Check</th>
+                                <th>Staff</th>
+                                <th>Issues</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ATV-01</td>
+                                <td><span class="status-badge status-ready">✅ Ready</span></td>
+                                <td>6:45 AM</td>
+                                <td>Budi Hassan</td>
+                                <td>None</td>
+                                <td><button class="alert-btn" onclick="showDetails('ATV-01')">Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>Gova-7</td>
+                                <td><span class="status-badge status-issues">⚠️ Issues</span></td>
+                                <td>7:08 AM</td>
+                                <td>Budi Hassan</td>
+                                <td>Throttle stiff</td>
+                                <td><button class="alert-btn" onclick="showDetails('Gova-7')">Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>Mike-9</td>
+                                <td><span class="status-badge status-unsafe">🚫 Unsafe</span></td>
+                                <td>5:45 AM</td>
+                                <td>Hassan</td>
+                                <td>Brakes weak</td>
+                                <td><button class="alert-btn" onclick="showDetails('Mike-9')">Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Inspection History -->
+            <div id="history" class="tab-content">
+                <h3 style="margin-bottom: 20px;">📋 Latest Inspections</h3>
+
+                <div class="inspection-detail">
+                    <div class="inspection-header">
+                        <div>
+                            <div class="inspection-title">Gova-7 - Budi Hassan</div>
+                            <div class="inspection-time">7:08 AM (2 minutes ago)</div>
+                        </div>
+                        <span class="status-badge status-issues">⚠️ Has Issues</span>
+                    </div>
+
+                    <div class="check-result">
+                        <span class="check-name">Engine</span>
+                        <span class="check-value good">✅ Good</span>
+                    </div>
+                    <div class="check-result">
+                        <span class="check-name">Brakes</span>
+                        <span class="check-value good">✅ Good</span>
+                    </div>
+                    <div class="check-result">
+                        <span class="check-name">Tires</span>
+                        <span class="check-value good">✅ Good</span>
+                    </div>
+                    <div class="check-result">
+                        <span class="check-name">Throttle</span>
+                        <span class="check-value issue">❌ Stiff</span>
+                    </div>
+                    <div class="check-result">
+                        <span class="check-name">Steering</span>
+                        <span class="check-value good">✅ Good</span>
+                    </div>
+                    <div class="check-result">
+                        <span class="check-name">Noises</span>
+                        <span class="check-value good">✅ None</span>
+                    </div>
+
+                    <div class="photo-section">
+                        <label class="photo-label">📷 Pre-Ride Photo</label>
+                        <div class="photo-placeholder">Pre-ride photo taken at 7:05 AM ✓</div>
+                    </div>
+
+                    <div class="photo-section">
+                        <label class="photo-label">📷 Issue Photo</label>
+                        <div class="photo-placeholder">Issue photo taken at 7:07 AM ✓</div>
+                    </div>
+
+                    <div class="remarks">
+                        <div class="remarks-label">📝 Remarks:</div>
+                        <div class="remarks-text">"Throttle cable stiff, needs lubrication"</div>
+                    </div>
+                </div>
+
+                <div class="inspection-detail">
+                    <div class="inspection-header">
+                        <div>
+                            <div class="inspection-title">ATV-05 - Rudi Suherman</div>
+                            <div class="inspection-time">7:00 AM (15 minutes ago)</div>
+                        </div>
+                        <span class="status-badge status-ready">✅ Ready</span>
+                    </div>
+
+                    <div class="check-result">
+                        <span class="check-name">All Checks</span>
+                        <span class="check-value good">✅ All Good</span>
+                    </div>
+
+                    <div class="remarks">
+                        <div class="remarks-label">📝 Remarks:</div>
+                        <div class="remarks-text">No issues - ready for operation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Alerts -->
+            <div id="alerts" class="tab-content">
+                <h3 style="margin-bottom: 20px;">🚨 Predictive Maintenance Alerts</h3>
+
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>📊 Pattern Analysis:</strong> Gova-7 throttle issue repeating - 2nd time in 7 days with worsening severity
+                </div>
+
+                <div class="alerts-container">
+                    <div class="alert critical">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🔴 CRITICAL - Mike-9 Brakes</div>
+                            </div>
+                            <div class="alert-badge">CRITICAL</div>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Issue:</strong> Brakes weak/unresponsive<br>
+                            <strong>Risk:</strong> 100% (Safety issue)<br>
+                            <strong>Action:</strong> DO NOT OPERATE<br>
+                            <strong>Recommendation:</strong> Immediate repair required
+                        </div>
+                    </div>
+
+                    <div class="alert high">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🟠 HIGH - Gova-7 Throttle</div>
+                            </div>
+                            <div class="alert-badge">HIGH</div>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Issue:</strong> Throttle stiff (2nd occurrence)<br>
+                            <strong>Trend:</strong> Worsening over 9 days<br>
+                            <strong>Risk:</strong> 75% failure in 3 days<br>
+                            <strong>Recommendation:</strong> Repair TODAY to prevent breakdown
+                        </div>
+                    </div>
+
+                    <div class="alert high">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🟠 HIGH - New-3 Engine Noise</div>
+                            </div>
+                            <div class="alert-badge">HIGH</div>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Issue:</strong> Engine knocking sound<br>
+                            <strong>Risk:</strong> 60% significant problem<br>
+                            <strong>Recommendation:</strong> Diagnostic within 24 hours
+                        </div>
+                    </div>
+
+                    <div class="alert medium">
+                        <div class="alert-header">
+                            <div>
+                                <div class="alert-title">🟡 MEDIUM - Ummu-11 Tire Wear</div>
+                            </div>
+                            <div class="alert-badge">MEDIUM</div>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Issue:</strong> Tire wear noticeable<br>
+                            <strong>Risk:</strong> Monitor<br>
+                            <strong>Recommendation:</strong> Schedule replacement within 1 week
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKFLOW SCREEN -->
+        <div id="workflow" class="screen">
+            <div style="text-align: right; margin-bottom: 20px;">
+                <button onclick="showScreen('login')" class="secondary-btn">← Back to Home</button>
+            </div>
+
+            <div style="max-width: 900px; margin: 0 auto;">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #FF6B35;">📈 Real-World Workflow Example</h2>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:00 AM</div>
+                        <div class="timeline-text"><strong>Manager checks dashboard</strong><br>Sees: 0 inspections, ready to start day</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:05 AM</div>
+                        <div class="timeline-text"><strong>Manager sends inspection links</strong><br>WhatsApp broadcast: "Daily inspection time"</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:08 AM</div>
+                        <div class="timeline-text"><strong>Staff #1 submits inspection (Budi Hassan - ATV-01)</strong><br>✓ Takes photo → Fills 8 checks → All good → Submits</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:12 AM</div>
+                        <div class="timeline-text"><strong>Staff #2 submits inspection (Rudi - Gova-7)</strong><br>⚠️ Finds: Throttle stiff → Takes photo → Writes remarks → Submits</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:15 AM</div>
+                        <div class="timeline-text"><strong>🤖 System analyzes data automatically</strong><br>Detects: 2nd throttle issue in 7 days<br>Calculates: 75% failure probability in 3 days<br>Generates: HIGH priority alert</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:16 AM</div>
+                        <div class="timeline-text"><strong>Manager refreshes dashboard</strong><br>Sees: New inspection + HIGH alert<br>Reads: "Gova-7 throttle - repair TODAY"</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">7:18 AM</div>
+                        <div class="timeline-text"><strong>Manager takes action</strong><br>Clicks: Schedule Repair<br>Calls mechanic: "Gova-7 throttle, 11:00 AM"<br>Updates staff: "Gova-7 out until noon"</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:00 AM</div>
+                        <div class="timeline-text"><strong>Mechanic starts repair</strong><br>Dashboard shows: Gova-7 in repair status</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">12:20 PM</div>
+                        <div class="timeline-text"><strong>Repair complete & validated</strong><br>Manager marks: Repair finished<br>Dashboard updates: Gova-7 back to Ready ✓</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-time">1:00 PM</div>
+                        <div class="timeline-text"><strong>✅ Result: Problem prevented!</strong><br>✓ No breakdown<br>✓ Tours on schedule<br>✓ Customers happy<br>✓ Problem solved proactively</div>
+                    </div>
+                </div>
+
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; border-radius: 5px; margin-top: 40px;">
+                    <h3 style="color: #2e7d32; margin-bottom: 10px;">✅ Benefits Realized:</h3>
+                    <ul style="color: #558b2f; line-height: 2;">
+                        <li>✓ Issue detected early (before breakdown)</li>
+                        <li>✓ Repaired before it became critical</li>
+                        <li>✓ No emergency repairs needed</li>
+                        <li>✓ Tours stayed on schedule</li>
+                        <li>✓ No lost revenue</li>
+                        <li>✓ Staff accountable (timestamped proof)</li>
+                        <li>✓ Complete audit trail created</li>
+                        <li>✓ $1,500+ saved on this issue alone</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form state
+        let formState = {
+            staff_name: '',
+            atv_id: '',
+            engine_check: null,
+            brakes_check: null,
+            tires_check: null,
+            lights_check: null,
+            throttle_check: null,
+            acceleration_check: null,
+            steering_check: null,
+            noises_check: null,
+            overall_condition: '',
+            remarks: '',
+            photos: {
+                preride: false,
+                issue: false
+            }
+        };
+
+        // Show/Hide screens
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            // Update nav buttons
+            if (event && event.target) {
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+        }
+
+        // Set field and update state
+        function setField(fieldName, value) {
+            formState[fieldName] = value;
+            
+            // Update button active states
+            const buttons = event.target.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updateFormStatus();
+        }
+
+        // Take photo simulation
+        function takePhoto(photoType) {
+            formState.photos[photoType] = new Date().toLocaleTimeString();
+            
+            const statusEl = document.getElementById(`photo_${photoType}`);
+            if (statusEl) {
+                statusEl.innerHTML = `✓ Photo taken at ${new Date().toLocaleTimeString()}`;
+            }
+            
+            updateFormStatus();
+        }
+
+        // Update form status and validation
+        function updateFormStatus() {
+            const overallCondition = document.getElementById('overall_condition').value;
+            const hasIssuesOrUnsafe = overallCondition === 'issues' || overallCondition === 'unsafe';
+            
+            // Show/hide conditional fields
+            const issuePhotoBtn = document.getElementById('issue_photo_btn');
+            const remarksBadge = document.getElementById('remarks_badge');
+            const issuePhotoBadge = document.getElementById('issue_photo_badge');
+            
+            if (hasIssuesOrUnsafe) {
+                issuePhotoBtn.classList.remove('hidden');
+                remarksBadge.classList.remove('hidden');
+                issuePhotoBadge.classList.remove('hidden');
+            } else {
+                issuePhotoBtn.classList.add('hidden');
+                remarksBadge.classList.add('hidden');
+                issuePhotoBadge.classList.add('hidden');
+            }
+            
+            // Check all requirements
+            const requirements = {
+                'staff': () => document.getElementById('staff_name').value.trim() !== '',
+                'atv': () => document.getElementById('atv_id').value !== '',
+                'photo': () => formState.photos.preride,
+                'engine': () => formState.engine_check !== null,
+                'brakes': () => formState.brakes_check !== null,
+                'tires': () => formState.tires_check !== null,
+                'lights': () => formState.lights_check !== null,
+                'throttle': () => formState.throttle_check !== null,
+                'accel': () => formState.acceleration_check !== null,
+                'steer': () => formState.steering_check !== null,
+                'noise': () => formState.noises_check !== null,
+                'overall': () => document.getElementById('overall_condition').value !== ''
+            };
+            
+            // Add conditional requirements
+            if (hasIssuesOrUnsafe) {
+                requirements['remarks'] = () => document.getElementById('remarks').value.trim() !== '';
+                requirements['issue_photo'] = () => formState.photos.issue;
+            }
+            
+            // Count incomplete
+            let incomplete = 0;
+            for (const [key, check] of Object.entries(requirements)) {
+                if (!check()) {
+                    incomplete++;
+                }
+            }
+            
+            // Update submit button
+            const submitBtn = document.getElementById('submitBtn');
+            if (incomplete === 0) {
+                submitBtn.classList.remove('btn-submit-disabled');
+                submitBtn.classList.add('btn-submit-enabled');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ COMPLETE CHECK (Ready)';
+            } else {
+                submitBtn.classList.add('btn-submit-disabled');
+                submitBtn.classList.remove('btn-submit-enabled');
+                submitBtn.disabled = true;
+                submitBtn.textContent = `🔴 COMPLETE CHECK (${incomplete} items missing)`;
+            }
+        }
+
+        // Form submission
+        document.getElementById('inspectionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            formState.staff_name = document.getElementById('staff_name').value;
+            formState.atv_id = document.getElementById('atv_id').value;
+            formState.overall_condition = document.getElementById('overall_condition').value;
+            formState.remarks = document.getElementById('remarks').value;
+            
+            document.getElementById('inspectionForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            setTimeout(() => {
+                showScreen('dashboard');
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('inspectionForm').style.display = 'block';
+                document.getElementById('inspectionForm').reset();
+                formState = {
+                    staff_name: '',
+                    atv_id: '',
+                    engine_check: null,
+                    brakes_check: null,
+                    tires_check: null,
+                    lights_check: null,
+                    throttle_check: null,
+                    acceleration_check: null,
+                    steering_check: null,
+                    noises_check: null,
+                    overall_condition: '',
+                    remarks: '',
+                    photos: { preride: false, issue: false }
+                };
+                updateFormStatus();
+            }, 2000);
+        });
+
+        // Dashboard tab switching
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // Refresh dashboard
+        function refreshDashboard() {
+            alert('Dashboard refreshed! (This would fetch real data from API)');
+        }
+
+        // Show inspection details
+        function showDetails(atvId) {
+            alert('Detailed inspection view for ' + atvId + '\n\n(In full system, opens modal with complete details)');
+        }
+
+        // Initialize form
+        window.addEventListener('load', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inspectionDate').value = today;
+            
+            document.getElementById('staff_name').addEventListener('input', updateFormStatus);
+            document.getElementById('atv_id').addEventListener('change', updateFormStatus);
+            document.getElementById('overall_condition').addEventListener('change', updateFormStatus);
+            document.getElementById('remarks').addEventListener('input', updateFormStatus);
+            
+            updateFormStatus();
+        });
+    </script>
+</body>
+</html>

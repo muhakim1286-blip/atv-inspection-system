@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATV Inspection - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* LOGIN GATE */
+        .login-gate {
+            max-width: 380px;
+            margin: 15vh auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .login-gate h2 {
+            color: #FF6B35;
+            margin-bottom: 8px;
+        }
+
+        .login-gate p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .login-gate input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .login-gate button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #FF6B35;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .login-gate .error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .pw-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .pw-wrap input {
+            margin-bottom: 0;
+            padding-right: 40px;
+        }
+
+        .pw-wrap .pw-toggle {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 6px 8px;
+            color: #888;
+            line-height: 1;
+        }
+
+        .pw-wrap .pw-toggle:hover {
+            color: #333;
+            background: none;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #FF6B35;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .status-online {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .status-offline {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .logout-link {
+            font-size: 11px;
+            color: #999;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #FF6B35;
+        }
+
+        .stat-card.green { border-left-color: #4CAF50; }
+        .stat-card.blue { border-left-color: #2196F3; }
+        .stat-card.red { border-left-color: #d32f2f; }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .stat-subtitle {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover { background: #e8e8e8; }
+        .tab.active { background: #FF6B35; color: white; }
+
+        /* CONTENT */
+        .content-section {
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: none;
+        }
+
+        .content-section.active { display: block; }
+
+        /* TABLE */
+        .table-wrapper { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        table tr:hover { background: #f9f9f9; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge.pass { background: #e8f5e9; color: #2e7d32; }
+        .badge.service { background: #fff3e0; color: #e65100; }
+        .badge.critical { background: #ffebee; color: #c62828; }
+        .badge.pending { background: #e3f2fd; color: #1565c0; }
+        .badge.unknown { background: #eeeeee; color: #666; }
+
+        /* ALERT BOXES */
+        .alert-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .alert-box.success { background: #e8f5e9; border-left-color: #4CAF50; color: #2e7d32; }
+        .alert-box.warning { background: #fff3e0; border-left-color: #f57c00; color: #e65100; }
+        .alert-box.danger { background: #ffebee; border-left-color: #d32f2f; color: #c62828; }
+
+        .alert-icon { font-size: 20px; flex-shrink: 0; }
+        .alert-content { flex: 1; }
+        .alert-content strong { display: block; margin-bottom: 3px; }
+        .alert-content p { margin: 0; font-size: 12px; }
+
+        .resolve-btn {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resolve-btn:hover { background: #f0f0f0; }
+
+        /* ATV CARD */
+        .atv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .atv-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .atv-card:hover { border-color: #FF6B35; box-shadow: 0 4px 12px rgba(255,107,53,0.1); }
+        .atv-card.pass { border-left: 4px solid #4CAF50; }
+        .atv-card.issues { border-left: 4px solid #f57c00; }
+        .atv-card.unsafe { border-left: 4px solid #d32f2f; }
+        .atv-card.not_checked { border-left: 4px solid #9e9e9e; }
+
+        .atv-id { font-weight: bold; font-size: 16px; color: #333; margin-bottom: 8px; }
+        .atv-info { font-size: 12px; color: #666; margin-bottom: 8px; }
+
+        .atv-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .atv-status-text { font-size: 12px; font-weight: bold; }
+
+        /* FILTER */
+        .filter-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover { border-color: #FF6B35; }
+        .filter-btn.active { background: #FF6B35; color: white; border-color: #FF6B35; }
+
+        /* SEARCH */
+        .search-box { margin-bottom: 20px; }
+
+        .search-box input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 2px rgba(255,107,53,0.1);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+        }
+
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+
+        .detail-item { padding: 10px 0; border-bottom: 1px solid #e0e0e0; font-size: 13px; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { font-weight: bold; color: #666; margin-bottom: 3px; }
+        .detail-value { color: #333; }
+
+        .modal-photo {
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 6px;
+            max-height: 260px;
+            object-fit: cover;
+        }
+
+        /* BUTTON */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary { background: #FF6B35; color: white; }
+        .btn-primary:hover { background: #e65a2d; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .btn-small { padding: 6px 10px; font-size: 11px; }
+
+        .loading, .empty-state { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div class="login-gate" id="loginGate">
+    <h2>🔒 Admin Access</h2>
+    <p>Sign in with your manager email and password.</p>
+    <input type="email" id="loginEmail" placeholder="Email" autofocus autocomplete="username">
+    <div class="pw-wrap">
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)">👁</button>
+    </div>
+    <button onclick="attemptLogin()">Log In</button>
+    <div class="error" id="loginError">Incorrect email or password.</div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="pwModal" class="modal">
+    <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-header">
+            <span>Change Password</span>
+            <button class="modal-close" onclick="closePwModal()">×</button>
+        </div>
+        <div class="pw-wrap">
+            <input type="password" id="pwCurrent" placeholder="Current password" autocomplete="current-password" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+            <button type="button" class="pw-toggle" onclick="togglePw('pwCurrent', this)">👁</button>
+        </div>
+        <div class="pw-wrap">
+            <input type="password" id="pwNew" placeholder="New password (min 8 characters)" autocomplete="new-password" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+            <button type="button" class="pw-toggle" onclick="togglePw('pwNew', this)">👁</button>
+        </div>
+        <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="submitPasswordChange()">Update Password</button>
+        <div class="error" id="pwError" style="color:#d32f2f; font-size:12px; margin-top:10px; display:none;"></div>
+        <div id="pwSuccess" style="color:#2e7d32; font-size:12px; margin-top:10px; display:none;">✓ Password updated</div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container hidden" id="dashboardRoot" style="display:none;">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h1>📊 Admin Dashboard</h1>
+            <p>Real-time ATV Inspection Monitoring System</p>
+        </div>
+        <div class="header-right">
+            <div id="connStatus" class="status-online">● System Online</div>
+            <div class="timestamp" id="headerTime"></div>
+            <div class="timestamp" id="loggedInAs"></div>
+            <div class="logout-link" onclick="openPwModal()">Change Password</div>
+            <div class="logout-link" onclick="logout()">Log out</div>
+        </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card green">
+            <div class="stat-label">✓ Ready Today</div>
+            <div class="stat-number" id="readyCount">-</div>
+            <div class="stat-subtitle">ATV inspections passed</div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="stat-label">⚠️ Issues / Unsafe</div>
+            <div class="stat-number" id="issuesCount">-</div>
+            <div class="stat-subtitle">Requires attention</div>
+        </div>
+
+        <div class="stat-card blue">
+            <div class="stat-label">🚗 Fleet Size</div>
+            <div class="stat-number" id="fleetCount">-</div>
+            <div class="stat-subtitle">Total ATVs in system</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">👥 Staff Active Today</div>
+            <div class="stat-number" id="staffCount">-</div>
+            <div class="stat-subtitle">Distinct staff who submitted</div>
+        </div>
+    </div>
+
+    <!-- ALERTS BANNER -->
+    <div id="alertsContainer"></div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" data-tab="overview" onclick="showTab('overview', this)">📋 Overview</button>
+        <button class="tab" data-tab="fleet" onclick="showTab('fleet', this)">🚗 Fleet Status</button>
+        <button class="tab" data-tab="inspections" onclick="showTab('inspections', this)">📊 Inspections</button>
+        <button class="tab" data-tab="alerts" onclick="showTab('alerts', this)">🚨 Alerts & Issues</button>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div id="overview" class="content-section active">
+        <h2 style="margin-bottom: 20px; color: #FF6B35;">Today's Submissions</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>ATV</th>
+                        <th>Staff</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="overviewTableBody"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB: FLEET STATUS -->
+    <div id="fleet" class="content-section">
+        <h2 style="margin-bottom: 20px; color: #FF6B35;">Fleet Status Overview</h2>
+
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all" onclick="filterFleet('all', this)">All ATVs</button>
+            <button class="filter-btn" data-filter="ready" onclick="filterFleet('ready', this)">✓ Ready</button>
+            <button class="filter-btn" data-filter="issues" onclick="filterFleet('issues', this)">⚠️ Issues</button>
+            <button class="filter-btn" data-filter="unsafe" onclick="filterFleet('unsafe', this)">🚨 Unsafe</button>
+            <button class="filter-btn" data-filter="not_checked" onclick="filterFleet('not_checked', this)">◌ Not Checked</button>
+        </div>
+
+        <div class="atv-grid" id="fleetGrid"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- TAB: INSPECTIONS -->
+    <div id="inspections" class="content-section">
+        <h2 style="margin-bottom: 20px; color: #FF6B35;">Inspection History</h2>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search by ATV ID or staff name..." oninput="renderInspectionsTable()">
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>ATV ID</th>
+                        <th>Staff Member</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="inspectionsTableBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB: ALERTS & ISSUES -->
+    <div id="alerts" class="content-section">
+        <h2 style="margin-bottom: 20px; color: #FF6B35;">Active Alerts & Issues</h2>
+        <div id="activeAlertsList"><div class="loading">Loading...</div></div>
+
+        <h3 style="margin-top: 30px; margin-bottom: 15px;">All Alerts (incl. resolved)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>ATV</th>
+                        <th>Issue</th>
+                        <th>Severity</th>
+                        <th>Resolved</th>
+                    </tr>
+                </thead>
+                <tbody id="allAlertsTableBody"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="modalTitle">ATV Details</span>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    // Auto-detect backend URL: localhost during local testing, otherwise the deployed API.
+    // UPDATE the production URL below once the backend is deployed (e.g. to Render).
+    const API_URL = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:8000'
+        : 'https://YOUR-BACKEND.onrender.com';
+
+    const TOKEN_STORAGE = 'atv_admin_token';
+    const EMAIL_STORAGE = 'atv_admin_email';
+    const REFRESH_INTERVAL_MS = 30000;
+
+    let state = {
+        summary: null,
+        atvStatus: [],
+        inspections: [],
+        alerts: []
+    };
+
+    function getToken() {
+        return localStorage.getItem(TOKEN_STORAGE) || '';
+    }
+
+    function togglePw(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        btn.textContent = showing ? '👁' : '🙈';
+    }
+
+    function clearSession() {
+        localStorage.removeItem(TOKEN_STORAGE);
+        localStorage.removeItem(EMAIL_STORAGE);
+    }
+
+    async function logout() {
+        try {
+            await fetch(`${API_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+        } catch (e) { /* ignore - clearing local session regardless */ }
+        clearSession();
+        location.reload();
+    }
+
+    async function attemptLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        document.getElementById('loginError').style.display = 'none';
+        if (!email || !password) return;
+
+        try {
+            const res = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (res.status === 401) {
+                document.getElementById('loginError').textContent = 'Incorrect email or password.';
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+            if (!res.ok) throw new Error(`API error ${res.status}`);
+
+            const data = await res.json();
+            localStorage.setItem(TOKEN_STORAGE, data.token);
+            localStorage.setItem(EMAIL_STORAGE, data.email);
+
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('dashboardRoot').style.display = 'block';
+            document.getElementById('loggedInAs').textContent = `Logged in as ${data.email}`;
+            startDashboard();
+        } catch (err) {
+            document.getElementById('loginError').textContent = 'Could not reach the backend API. Check API_URL / that the server is running.';
+            document.getElementById('loginError').style.display = 'block';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && document.getElementById('loginGate').style.display !== 'none') {
+            attemptLogin();
+        }
+    });
+
+    async function tryResumeSession() {
+        try {
+            const res = await fetch(`${API_URL}/api/auth/me`, {
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            if (!res.ok) {
+                clearSession();
+                return;
+            }
+            const data = await res.json();
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('dashboardRoot').style.display = 'block';
+            document.getElementById('loggedInAs').textContent = `Logged in as ${data.email}`;
+            startDashboard();
+        } catch (err) {
+            // Backend unreachable - stay on login gate, user can retry
+        }
+    }
+
+    async function apiFetch(path, options = {}) {
+        const res = await fetch(`${API_URL}${path}`, {
+            ...options,
+            headers: { ...(options.headers || {}), 'Authorization': `Bearer ${getToken()}` }
+        });
+        if (res.status === 401) {
+            clearSession();
+            alert('Session expired. Please log in again.');
+            location.reload();
+            throw new Error('Unauthorized');
+        }
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        return res.json();
+    }
+
+    function openPwModal() {
+        document.getElementById('pwCurrent').value = '';
+        document.getElementById('pwNew').value = '';
+        document.getElementById('pwError').style.display = 'none';
+        document.getElementById('pwSuccess').style.display = 'none';
+        document.getElementById('pwModal').classList.add('show');
+    }
+
+    function closePwModal() {
+        document.getElementById('pwModal').classList.remove('show');
+    }
+
+    async function submitPasswordChange() {
+        const current_password = document.getElementById('pwCurrent').value;
+        const new_password = document.getElementById('pwNew').value;
+        const errEl = document.getElementById('pwError');
+        errEl.style.display = 'none';
+
+        try {
+            const res = await fetch(`${API_URL}/api/auth/change-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                body: JSON.stringify({ current_password, new_password })
+            });
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}));
+                throw new Error(body.detail || `Request failed (${res.status})`);
+            }
+            document.getElementById('pwSuccess').style.display = 'block';
+            document.getElementById('pwCurrent').value = '';
+            document.getElementById('pwNew').value = '';
+        } catch (err) {
+            errEl.textContent = err.message;
+            errEl.style.display = 'block';
+        }
+    }
+
+    function updateTime() {
+        document.getElementById('headerTime').textContent = new Date().toLocaleString();
+    }
+
+    function showTab(tabName, btn) {
+        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function filterFleet(type, btn) {
+        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderFleetGrid(type);
+    }
+
+    function severityBadgeClass(sev) {
+        if (sev === 'CRITICAL') return 'critical';
+        if (sev === 'HIGH') return 'service';
+        if (sev === 'MEDIUM') return 'pending';
+        return 'pass';
+    }
+
+    function conditionBadge(condition) {
+        if (condition === 'ready') return '<span class="badge pass">✓ READY</span>';
+        if (condition === 'issues') return '<span class="badge service">⚠️ ISSUES</span>';
+        if (condition === 'unsafe') return '<span class="badge critical">🚨 UNSAFE</span>';
+        return '<span class="badge unknown">◌ NOT CHECKED</span>';
+    }
+
+    function fmtTime(iso) {
+        if (!iso) return '-';
+        return new Date(iso).toLocaleString();
+    }
+
+    async function loadAll() {
+        try {
+            const [summary, atvStatus, inspectionsRes, alertsRes, allAlertsRes] = await Promise.all([
+                apiFetch('/api/dashboard/summary'),
+                apiFetch('/api/dashboard/atv-status'),
+                apiFetch('/api/inspections?limit=200'),
+                apiFetch('/api/alerts?unresolved_only=true'),
+                apiFetch('/api/alerts?unresolved_only=false')
+            ]);
+
+            state.summary = summary;
+            state.atvStatus = atvStatus.atv_status;
+            state.inspections = inspectionsRes.records;
+            state.alerts = alertsRes.alerts;
+            state.allAlerts = allAlertsRes.alerts;
+
+            renderStats();
+            renderAlertsBanner();
+            renderOverviewTable();
+            renderFleetGrid(currentFleetFilter());
+            renderInspectionsTable();
+            renderActiveAlertsList();
+            renderAllAlertsTable();
+
+            document.getElementById('connStatus').textContent = '● System Online';
+            document.getElementById('connStatus').className = 'status-online';
+        } catch (err) {
+            if (err.message !== 'Unauthorized') {
+                document.getElementById('connStatus').textContent = '● Connection Error';
+                document.getElementById('connStatus').className = 'status-offline';
+                console.error(err);
+            }
+        }
+    }
+
+    function currentFleetFilter() {
+        const activeBtn = document.querySelector('#fleet .filter-btn.active');
+        return activeBtn ? activeBtn.dataset.filter : 'all';
+    }
+
+    function renderStats() {
+        const s = state.summary;
+        document.getElementById('readyCount').textContent = s.ready;
+        document.getElementById('issuesCount').textContent = s.issues + s.unsafe;
+        document.getElementById('fleetCount').textContent = s.total_fleet;
+        document.getElementById('staffCount').textContent = s.staff_active_today;
+    }
+
+    function renderAlertsBanner() {
+        const container = document.getElementById('alertsContainer');
+        const critical = state.alerts.filter(a => a.severity === 'CRITICAL');
+        const high = state.alerts.filter(a => a.severity === 'HIGH');
+
+        if (critical.length === 0 && high.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        [...critical, ...high].slice(0, 5).forEach(a => {
+            const boxClass = a.severity === 'CRITICAL' ? 'danger' : 'warning';
+            const icon = a.severity === 'CRITICAL' ? '🚨' : '⚠️';
+            html += `
+                <div class="alert-box ${boxClass}">
+                    <div class="alert-icon">${icon}</div>
+                    <div class="alert-content">
+                        <strong>${a.severity}: ${a.display_name} - ${a.issue_type.replace(/_/g, ' ')}</strong>
+                        <p>${a.recommendation}</p>
+                    </div>
+                    <button class="resolve-btn" onclick="resolveAlert('${a.alert_id}')">Mark Resolved</button>
+                </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderOverviewTable() {
+        const tbody = document.getElementById('overviewTableBody');
+        const today = new Date().toISOString().split('T')[0];
+        const todays = state.inspections.filter(r => r.date === today);
+
+        if (todays.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No inspections submitted yet today</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = todays.map(r => `
+            <tr>
+                <td>${fmtTime(r.submitted_at)}</td>
+                <td><strong>${r.display_name}</strong></td>
+                <td>${r.staff_name}</td>
+                <td>${conditionBadge(r.overall_condition)}</td>
+                <td>${r.remarks || 'None'}</td>
+            </tr>`).join('');
+    }
+
+    function renderFleetGrid(filter) {
+        const grid = document.getElementById('fleetGrid');
+        const list = filter === 'all' ? state.atvStatus : state.atvStatus.filter(a => a.status === filter);
+
+        if (list.length === 0) {
+            grid.innerHTML = '<div class="empty-state">No ATVs match this filter</div>';
+            return;
+        }
+
+        grid.innerHTML = list.map(a => {
+            const cardClass = a.status || 'not_checked';
+            const statusText = {
+                ready: ['✓ READY', '#4CAF50'],
+                issues: ['⚠️ ISSUES', '#f57c00'],
+                unsafe: ['🚨 UNSAFE', '#d32f2f'],
+                not_checked: ['◌ NOT CHECKED', '#9e9e9e']
+            }[cardClass] || ['◌ NOT CHECKED', '#9e9e9e'];
+
+            return `
+                <div class="atv-card ${cardClass}">
+                    <div class="atv-id">🚗 ${a.display_name}</div>
+                    <div class="atv-info">
+                        <div>Last Inspection: ${a.last_checked ? fmtTime(a.last_checked) : 'Never'}</div>
+                        <div>Inspected by: ${a.staff || '-'}</div>
+                    </div>
+                    <div class="atv-status">
+                        <div class="atv-status-text" style="color: ${statusText[1]};">${statusText[0]}</div>
+                        <button class="btn btn-secondary btn-small" onclick="viewAtv('${a.atv_id}')">View</button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function renderInspectionsTable() {
+        const tbody = document.getElementById('inspectionsTableBody');
+        const search = document.getElementById('searchInput').value.toLowerCase();
+
+        let list = state.inspections;
+        if (search) {
+            list = list.filter(r =>
+                r.atv_id.toLowerCase().includes(search) ||
+                r.display_name.toLowerCase().includes(search) ||
+                r.staff_name.toLowerCase().includes(search)
+            );
+        }
+
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No inspections found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map(r => `
+            <tr>
+                <td>${fmtTime(r.submitted_at)}</td>
+                <td><strong>${r.display_name}</strong></td>
+                <td>${r.staff_name}</td>
+                <td>${conditionBadge(r.overall_condition)}</td>
+                <td>${r.remarks || 'None'}</td>
+                <td><button class="btn btn-secondary btn-small" onclick="viewInspection('${r.inspection_id}')">Details</button></td>
+            </tr>`).join('');
+    }
+
+    function renderActiveAlertsList() {
+        const container = document.getElementById('activeAlertsList');
+        if (state.alerts.length === 0) {
+            container.innerHTML = '<div class="alert-box success"><div class="alert-icon">✅</div><div class="alert-content"><strong>No active alerts</strong><p>All clear.</p></div></div>';
+            return;
+        }
+
+        container.innerHTML = state.alerts.map(a => {
+            const boxClass = a.severity === 'CRITICAL' ? 'danger' : (a.severity === 'HIGH' ? 'warning' : 'warning');
+            const icon = a.severity === 'CRITICAL' ? '🚨' : '⚠️';
+            return `
+                <div class="alert-box ${boxClass}">
+                    <div class="alert-icon">${icon}</div>
+                    <div class="alert-content">
+                        <strong>${a.severity}: ${a.display_name} - ${a.issue_type.replace(/_/g, ' ')}</strong>
+                        <p>Reported: ${fmtTime(a.created_at)}</p>
+                        <p>${a.recommendation}</p>
+                    </div>
+                    <button class="resolve-btn" onclick="resolveAlert('${a.alert_id}')">Mark Resolved</button>
+                </div>`;
+        }).join('');
+    }
+
+    function renderAllAlertsTable() {
+        const tbody = document.getElementById('allAlertsTableBody');
+        if (!state.allAlerts || state.allAlerts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No alerts yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = state.allAlerts.map(a => `
+            <tr>
+                <td>${fmtTime(a.created_at)}</td>
+                <td><strong>${a.display_name}</strong></td>
+                <td>${a.issue_type.replace(/_/g, ' ')}</td>
+                <td><span class="badge ${severityBadgeClass(a.severity)}">${a.severity}</span></td>
+                <td>${a.resolved ? '✓ Yes' : 'Pending'}</td>
+            </tr>`).join('');
+    }
+
+    async function resolveAlert(alertId) {
+        try {
+            await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'POST' });
+            await loadAll();
+        } catch (err) {
+            alert('Could not resolve alert: ' + err.message);
+        }
+    }
+
+    function viewAtv(atvId) {
+        const record = state.atvStatus.find(a => a.atv_id === atvId);
+        if (!record) return;
+        document.getElementById('modalTitle').textContent = record.display_name;
+        document.getElementById('modalBody').innerHTML = `
+            <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value">${record.status}</div></div>
+            <div class="detail-item"><div class="detail-label">Last Inspection</div><div class="detail-value">${record.last_checked ? fmtTime(record.last_checked) : 'Never inspected'}</div></div>
+            <div class="detail-item"><div class="detail-label">Inspected By</div><div class="detail-value">${record.staff || '-'}</div></div>
+            <div class="detail-item"><div class="detail-label">Notes</div><div class="detail-value">${record.notes || 'None'}</div></div>
+        `;
+        document.getElementById('detailModal').classList.add('show');
+    }
+
+    async function viewInspection(inspectionId) {
+        try {
+            const detail = await apiFetch(`/api/inspections/${inspectionId}`);
+            document.getElementById('modalTitle').textContent = `${detail.display_name} - ${detail.date}`;
+
+            const checks = [
+                ['Engine', detail.engine_check], ['Brakes', detail.brakes_check],
+                ['Tires', detail.tires_check], ['Lights', detail.lights_check],
+                ['Throttle', detail.throttle_check], ['Acceleration', detail.acceleration_check],
+                ['Steering', detail.steering_check], ['Noises', detail.noises_check]
+            ].map(([label, val]) => `
+                <div class="detail-item">
+                    <div class="detail-label">${label}</div>
+                    <div class="detail-value">${val === null ? '-' : (val ? '✓ Good' : '✗ Issue')}</div>
+                </div>`).join('');
+
+            const photos = detail.photos.map(p => `
+                <div class="detail-item">
+                    <div class="detail-label">${p.type === 'preride' ? 'Pre-Ride Photo' : 'Defect Photo'}</div>
+                    <img class="modal-photo" src="${API_URL}${p.url}" alt="${p.type} photo">
+                </div>`).join('');
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-item"><div class="detail-label">Staff</div><div class="detail-value">${detail.staff_name}</div></div>
+                <div class="detail-item"><div class="detail-label">Overall Condition</div><div class="detail-value">${conditionBadge(detail.overall_condition)}</div></div>
+                <div class="detail-item"><div class="detail-label">Submitted</div><div class="detail-value">${fmtTime(detail.submitted_at)}</div></div>
+                ${checks}
+                <div class="detail-item"><div class="detail-label">Remarks</div><div class="detail-value">${detail.remarks || 'None'}</div></div>
+                ${photos}
+            `;
+            document.getElementById('detailModal').classList.add('show');
+        } catch (err) {
+            alert('Could not load inspection details: ' + err.message);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('show');
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailModal');
+        if (event.target === modal) modal.classList.remove('show');
+    };
+
+    function startDashboard() {
+        updateTime();
+        setInterval(updateTime, 1000);
+        loadAll();
+        setInterval(loadAll, REFRESH_INTERVAL_MS);
+    }
+
+    window.addEventListener('load', () => {
+        if (getToken()) {
+            tryResumeSession();
+        }
+    });
+</script>
+
+</body>
+</html>

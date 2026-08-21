@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: atv-inspection-api
+    runtime: python
+    plan: starter          # persistent disks require a paid plan - not available on "free"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend_main.py
+    healthCheckPath: /api/health
+    disk:
+      name: atv-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /data/atv_inspections.db
+      - key: UPLOADS_DIR
+        value: /data/uploads
+      - key: ALLOWED_ORIGINS
+        value: "*"          # tighten to your Vercel URL(s) once deployed, comma-separated
+
+# Admin accounts are created via CLI, not an env var - after the first deploy, open this
+# service's "Shell" tab on Render (Starter plan) and run, once per manager:
+#   python backend_main.py create-user manager@example.com "a-strong-password"

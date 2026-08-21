@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GY6 200CC - Daily Routine Check</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+        }
+
+        .check-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-ok {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-ok:hover {
+            background: #45a049;
+        }
+
+        .btn-ok.active {
+            background: #2E7D32;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-issue {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-issue:hover {
+            background: #da190b;
+        }
+
+        .btn-issue.active {
+            background: #a71d0c;
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-submit-disabled {
+            background: #f44336;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-submit-enabled {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-box {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success-box.offline {
+            background: #F7931E;
+        }
+
+        .success-box .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .photo-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .photo-preview {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .button-full {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #2196F3;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .button-full:hover {
+            background: #0b7dda;
+        }
+
+        .photo-badge {
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .photo-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quick-tip {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .section-title {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .pending-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #856404;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-wrapper">
+
+        <!-- HEADER -->
+        <div class="header">
+            <h2>🔧 GY6 200CC DAILY ROUTINE CHECK</h2>
+            <p>5-Minute Pre-Ride Safety Check</p>
+        </div>
+
+        <div class="content">
+
+            <div class="pending-banner" id="pendingBanner"></div>
+
+            <form id="routineCheckForm">
+
+                <!-- DATE & STAFF -->
+                <div class="form-group">
+                    <div class="two-column">
+                        <div>
+                            <label>📅 Date</label>
+                            <input type="date" id="date" readonly>
+                        </div>
+                        <div>
+                            <label>👤 Staff Name</label>
+                            <input type="text" id="staff_name" placeholder="Your name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🏍️ ATV ID</label>
+                    <select id="atv_id">
+                        <option value="">-- Select ATV --</option>
+                        <option value="New1">New 1</option>
+                        <option value="New2">New 2</option>
+                        <option value="New3">New 3</option>
+                        <option value="New4">New 4</option>
+                        <option value="New5">New 5</option>
+                        <option value="New6">New 6</option>
+                        <option value="Gova7">Gova (7)</option>
+                        <option value="Syafiq8">Syafiq (8)</option>
+                        <option value="Mike9">Mike (9)</option>
+                        <option value="Mirza10">Mirza (10)</option>
+                        <option value="Ummu11">Ummu (11)</option>
+                        <option value="Ira12">Ira (12)</option>
+                        <option value="Vernon13">Vernon (13)</option>
+                    </select>
+                </div>
+
+                <!-- PRE-RIDE PHOTO -->
+                <div class="form-group">
+                    <div class="photo-label">
+                        <label>📸 Pre-Ride Photo</label>
+                        <span class="photo-badge">REQUIRED</span>
+                    </div>
+                    <input type="file" accept="image/*" capture="environment" id="file_preride" class="hidden">
+                    <button type="button" class="button-full" onclick="document.getElementById('file_preride').click()">📷 Take Photo</button>
+                    <div class="photo-status hidden" id="photo_preride"></div>
+                    <img class="photo-preview" id="preview_preride">
+                </div>
+
+                <!-- SAFETY CHECKS -->
+                <div class="section-title">🛑 SAFETY CHECKS</div>
+
+                <!-- 1. ENGINE START -->
+                <div class="form-group">
+                    <label>🔥 Engine Starts & Idles</label>
+                    <div class="quick-tip">Does engine start immediately and idle smoothly (no stalling)?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('engine_check', true, this)">✓ Good</button>
+                        <button type="button" class="btn-issue" onclick="setField('engine_check', false, this)">✗ Issue</button>
+                    </div>
+                </div>
+
+                <!-- 2. BRAKES -->
+                <div class="form-group">
+                    <label>🛑 Brakes Responsive</label>
+                    <div class="quick-tip">Front & rear brakes firm and stop ATV quickly?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('brakes_check', true, this)">✓ Good</button>
+                        <button type="button" class="btn-issue" onclick="setField('brakes_check', false, this)">✗ Spongy/Weak</button>
+                    </div>
+                </div>
+
+                <!-- 3. TIRES -->
+                <div class="form-group">
+                    <label>🛞 Tires Condition</label>
+                    <div class="quick-tip">Proper pressure, no flat, bulges, or cuts?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('tires_check', true, this)">✓ Good</button>
+                        <button type="button" class="btn-issue" onclick="setField('tires_check', false, this)">✗ Issue</button>
+                    </div>
+                </div>
+
+                <!-- 4. LIGHTS -->
+                <div class="form-group">
+                    <label>💡 Lights Working</label>
+                    <div class="quick-tip">Headlight, taillight, brake light all on?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('lights_check', true, this)">✓ Good</button>
+                        <button type="button" class="btn-issue" onclick="setField('lights_check', false, this)">✗ Not Working</button>
+                    </div>
+                </div>
+
+                <!-- PERFORMANCE CHECKS -->
+                <div class="section-title">🏍️ PERFORMANCE CHECKS</div>
+
+                <!-- 5. THROTTLE RESPONSE -->
+                <div class="form-group">
+                    <label>⚡ Throttle Response</label>
+                    <div class="quick-tip">Does throttle respond smoothly when you twist (no lag or sticking)?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('throttle_check', true, this)">✓ Good</button>
+                        <button type="button" class="btn-issue" onclick="setField('throttle_check', false, this)">✗ Stiff/Laggy</button>
+                    </div>
+                </div>
+
+                <!-- 6. ACCELERATION -->
+                <div class="form-group">
+                    <label>💨 Acceleration</label>
+                    <div class="quick-tip">Does ATV accelerate normally when you open throttle?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('acceleration_check', true, this)">✓ Normal</button>
+                        <button type="button" class="btn-issue" onclick="setField('acceleration_check', false, this)">✗ Weak/Sluggish</button>
+                    </div>
+                </div>
+
+                <!-- 7. STEERING -->
+                <div class="form-group">
+                    <label>🎯 Steering Feel</label>
+                    <div class="quick-tip">Handlebar smooth and responsive (not loose or stiff)?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('steering_check', true, this)">✓ Smooth</button>
+                        <button type="button" class="btn-issue" onclick="setField('steering_check', false, this)">✗ Loose/Stiff</button>
+                    </div>
+                </div>
+
+                <!-- 8. UNUSUAL NOISES -->
+                <div class="form-group">
+                    <label>🔊 No Unusual Noises</label>
+                    <div class="quick-tip">Any strange sounds? (knocking, grinding, rattling)?</div>
+                    <div class="check-buttons">
+                        <button type="button" class="btn-ok" onclick="setField('noises_check', true, this)">✓ Quiet</button>
+                        <button type="button" class="btn-issue" onclick="setField('noises_check', false, this)">✗ Strange Noise</button>
+                    </div>
+                </div>
+
+                <!-- OVERALL CONDITION -->
+                <div class="section-title">📊 FINAL ASSESSMENT</div>
+
+                <div class="form-group">
+                    <label>🏍️ Overall Condition</label>
+                    <div class="quick-tip">Based on all checks - can ATV run today? Will it be safe for riders?</div>
+                    <select id="overall_condition">
+                        <option value="">-- Select --</option>
+                        <option value="ready">✓ Ready to Ride (All good, no issues)</option>
+                        <option value="issues">⚠️ Has Issues (Can run, but needs repair soon)</option>
+                        <option value="unsafe">🚫 Unsafe - Do Not Ride (Critical problem)</option>
+                    </select>
+                </div>
+
+                <!-- DEFECTS FOUND -->
+                <div class="form-group">
+                    <label id="remarks_label">📝 Defects/Issues Found
+                        <span id="remarks_badge" class="hidden photo-badge">REQUIRED</span>
+                    </label>
+                    <textarea id="remarks" placeholder="List any defects found (throttle stiff, brakes weak, steering loose, noises, etc.)..."></textarea>
+                </div>
+
+                <!-- ISSUE PHOTO (For documentation) -->
+                <div class="form-group">
+                    <label id="issue_photo_label">📸 Defect Photo (Document the issue)
+                        <span id="issue_photo_badge" class="hidden photo-badge">REQUIRED</span>
+                    </label>
+                    <input type="file" accept="image/*" capture="environment" id="file_issue" class="hidden">
+                    <button type="button" class="button-full hidden" id="issue_photo_btn" onclick="document.getElementById('file_issue').click()">📷 Take Photo of Defect</button>
+                    <div class="photo-status hidden" id="photo_issue"></div>
+                    <img class="photo-preview" id="preview_issue">
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" id="submitBtn" class="btn-submit btn-submit-disabled" disabled>
+                    🔴 COMPLETE CHECK (Answer All Items First)
+                </button>
+
+                <!-- SUCCESS MESSAGE -->
+                <div id="successMessage" class="success-box hidden">
+                    <div class="icon">✓</div>
+                    <strong id="successTitle">Daily Check Completed Successfully</strong>
+                    <p id="successSubtitle">ATV condition recorded and locked</p>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-detect backend URL: localhost during local testing, otherwise the deployed API.
+    // UPDATE the production URL below once the backend is deployed (e.g. to Render).
+    const API_URL = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:8000'
+        : 'https://YOUR-BACKEND.onrender.com';
+
+    const PENDING_QUEUE_KEY = 'atv_pending_inspections';
+    const MAX_PHOTO_DIMENSION = 1280;
+    const PHOTO_QUALITY = 0.7;
+
+    let formState = {
+        date: '',
+        staff_name: '',
+        atv_id: '',
+        engine_check: null,
+        brakes_check: null,
+        tires_check: null,
+        lights_check: null,
+        throttle_check: null,
+        acceleration_check: null,
+        steering_check: null,
+        noises_check: null,
+        overall_condition: '',
+        remarks: '',
+        photos: {
+            preride: null,
+            issue: null
+        }
+    };
+
+    function fileToCompressedDataUrl(file, maxDim, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > maxDim || height > maxDim) {
+                        if (width >= height) {
+                            height = Math.round(height * (maxDim / width));
+                            width = maxDim;
+                        } else {
+                            width = Math.round(width * (maxDim / height));
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => reject(new Error('Could not read image'));
+                img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error('Could not read file'));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handlePhoto(type, file) {
+        const statusEl = document.getElementById(`photo_${type}`);
+        statusEl.classList.remove('hidden');
+        statusEl.textContent = '⏳ Processing photo...';
+        try {
+            const dataUrl = await fileToCompressedDataUrl(file, MAX_PHOTO_DIMENSION, PHOTO_QUALITY);
+            formState.photos[type] = dataUrl;
+            statusEl.textContent = `✓ Photo captured at ${new Date().toLocaleTimeString()}`;
+            const preview = document.getElementById(`preview_${type}`);
+            preview.src = dataUrl;
+            preview.style.display = 'block';
+        } catch (err) {
+            statusEl.textContent = '❌ Failed to process photo - please try again';
+            formState.photos[type] = null;
+        }
+        updateFormStatus();
+    }
+
+    function updateFormStatus() {
+        const overallCondition = document.getElementById('overall_condition').value;
+        const hasIssuesOrUnsafe = overallCondition === 'issues' || overallCondition === 'unsafe';
+
+        const issuePhotoBtn = document.getElementById('issue_photo_btn');
+        const remarksBadge = document.getElementById('remarks_badge');
+        const issuePhotoBadge = document.getElementById('issue_photo_badge');
+
+        if (hasIssuesOrUnsafe) {
+            issuePhotoBtn.classList.remove('hidden');
+            remarksBadge.classList.remove('hidden');
+            issuePhotoBadge.classList.remove('hidden');
+        } else {
+            issuePhotoBtn.classList.add('hidden');
+            remarksBadge.classList.add('hidden');
+            issuePhotoBadge.classList.add('hidden');
+        }
+
+        const requirements = {
+            'staff': { check: () => document.getElementById('staff_name').value.trim() !== '' },
+            'atv': { check: () => document.getElementById('atv_id').value !== '' },
+            'photo': { check: () => !!formState.photos.preride },
+            'engine': { check: () => formState.engine_check !== null },
+            'brakes': { check: () => formState.brakes_check !== null },
+            'tires': { check: () => formState.tires_check !== null },
+            'lights': { check: () => formState.lights_check !== null },
+            'throttle': { check: () => formState.throttle_check !== null },
+            'accel': { check: () => formState.acceleration_check !== null },
+            'steer': { check: () => formState.steering_check !== null },
+            'noise': { check: () => formState.noises_check !== null },
+            'overall': { check: () => document.getElementById('overall_condition').value !== '' }
+        };
+
+        if (hasIssuesOrUnsafe) {
+            requirements['remarks'] = { check: () => document.getElementById('remarks').value.trim() !== '' };
+            requirements['issue_photo'] = { check: () => !!formState.photos.issue };
+        }
+
+        let incomplete = 0;
+        for (const key in requirements) {
+            if (!requirements[key].check()) incomplete++;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        if (incomplete === 0) {
+            submitBtn.classList.remove('btn-submit-disabled');
+            submitBtn.classList.add('btn-submit-enabled');
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ COMPLETE CHECK (Ready)';
+        } else {
+            submitBtn.classList.add('btn-submit-disabled');
+            submitBtn.classList.remove('btn-submit-enabled');
+            submitBtn.disabled = true;
+            submitBtn.textContent = `🔴 COMPLETE CHECK (${incomplete} More)`;
+        }
+    }
+
+    function setField(fieldName, value, btn) {
+        formState[fieldName] = value;
+
+        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        updateFormStatus();
+    }
+
+    function buildPayload() {
+        return {
+            date: document.getElementById('date').value,
+            staff_name: document.getElementById('staff_name').value.trim(),
+            atv_id: document.getElementById('atv_id').value,
+            engine_check: formState.engine_check,
+            brakes_check: formState.brakes_check,
+            tires_check: formState.tires_check,
+            lights_check: formState.lights_check,
+            throttle_check: formState.throttle_check,
+            acceleration_check: formState.acceleration_check,
+            steering_check: formState.steering_check,
+            noises_check: formState.noises_check,
+            overall_condition: document.getElementById('overall_condition').value,
+            remarks: document.getElementById('remarks').value.trim(),
+            photos: formState.photos
+        };
+    }
+
+    function getQueue() {
+        try {
+            return JSON.parse(localStorage.getItem(PENDING_QUEUE_KEY) || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveQueue(queue) {
+        localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(queue));
+        updatePendingBanner(queue.length);
+    }
+
+    function updatePendingBanner(count) {
+        const banner = document.getElementById('pendingBanner');
+        if (count > 0) {
+            banner.style.display = 'block';
+            banner.textContent = `⏳ ${count} inspection(s) saved offline, waiting to sync...`;
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
+    async function flushQueue() {
+        const queue = getQueue();
+        if (queue.length === 0) return;
+
+        const remaining = [];
+        for (const payload of queue) {
+            try {
+                const res = await fetch(`${API_URL}/api/inspections/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) remaining.push(payload);
+            } catch (e) {
+                remaining.push(payload);
+            }
+        }
+        saveQueue(remaining);
+    }
+
+    document.getElementById('file_preride').addEventListener('change', (e) => {
+        if (e.target.files[0]) handlePhoto('preride', e.target.files[0]);
+    });
+    document.getElementById('file_issue').addEventListener('change', (e) => {
+        if (e.target.files[0]) handlePhoto('issue', e.target.files[0]);
+    });
+
+    document.getElementById('routineCheckForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const staffName = document.getElementById('staff_name').value;
+        if (!staffName.trim()) {
+            alert('❌ Please enter your name');
+            return;
+        }
+
+        const atvId = document.getElementById('atv_id').value;
+        if (!atvId) {
+            alert('❌ Please select an ATV');
+            return;
+        }
+
+        if (!formState.photos.preride) {
+            alert('❌ Please take a pre-ride photo');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+
+        const payload = buildPayload();
+
+        try {
+            const response = await fetch(`${API_URL}/api/inspections/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new ServerError(`Server rejected submission (${response.status}): ${errText}`);
+            }
+
+            document.getElementById('routineCheckForm').style.display = 'none';
+            document.getElementById('successMessage').classList.remove('hidden');
+            document.getElementById('successMessage').classList.remove('offline');
+            document.getElementById('successTitle').textContent = 'Daily Check Completed Successfully';
+            document.getElementById('successSubtitle').textContent = 'ATV condition recorded and locked';
+
+        } catch (error) {
+            if (error instanceof ServerError) {
+                alert('❌ ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔴 COMPLETE CHECK';
+                return;
+            }
+
+            // Network/connectivity failure - queue for later sync instead of losing the data
+            const queue = getQueue();
+            queue.push(payload);
+            saveQueue(queue);
+
+            document.getElementById('routineCheckForm').style.display = 'none';
+            document.getElementById('successMessage').classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('offline');
+            document.getElementById('successTitle').textContent = 'Saved Offline';
+            document.getElementById('successSubtitle').textContent = 'No connection - this check will sync automatically once you\'re back online.';
+        }
+    });
+
+    class ServerError extends Error {}
+
+    window.addEventListener('load', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+
+        document.getElementById('staff_name').addEventListener('input', updateFormStatus);
+        document.getElementById('atv_id').addEventListener('change', updateFormStatus);
+        document.getElementById('overall_condition').addEventListener('change', updateFormStatus);
+        document.getElementById('remarks').addEventListener('input', updateFormStatus);
+
+        updatePendingBanner(getQueue().length);
+        flushQueue();
+
+        updateFormStatus();
+    });
+    window.addEventListener('online', flushQueue);
+</script>
+
+</body>
+</html>

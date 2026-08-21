@@ -1,0 +1,228 @@
+═══════════════════════════════════════════════════════════════════════════
+                    FREE TIER SETUP - QUICK CHECKLIST
+═══════════════════════════════════════════════════════════════════════════
+
+BEFORE YOU START - Do You Have These?
+═══════════════════════════════════════════════════════════════════════════
+
+□ All 4 files downloaded/ready:
+  □ GY6-Daily-Routine-Check-v2.html
+  □ Admin-Dashboard-Professional.html
+  □ backend_main.py
+  □ requirements.txt
+
+□ Browser open with multiple tabs ready
+□ 1 hour of uninterrupted time
+□ Email address (for account signups)
+
+
+STEP 1: GITHUB SETUP (5 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+□ Go to github.com
+□ Create account if needed
+□ Create repo #1: "atv-inspection"
+  □ Make PUBLIC
+  □ Upload 2 HTML files
+  □ Commit
+
+□ Create repo #2: "atv-inspection-backend"
+  □ Make PUBLIC
+  □ Upload backend_main.py + requirements.txt
+  □ Commit
+
+✅ RESULT: 2 repos on GitHub with your code
+
+
+STEP 2: VERCEL DEPLOYMENT (5 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+□ Go to vercel.com
+□ Click "Get Started"
+□ Login with GitHub
+□ Authorize Vercel
+
+□ Click "Add New Project"
+□ Select "atv-inspection" repo
+□ Click "Import"
+□ Click "Deploy"
+□ Wait 1-2 minutes
+
+□ Copy your frontend URLs:
+  Form URL: ____________________________________
+  Dashboard URL: ________________________________
+
+✅ RESULT: Your websites are live!
+
+
+STEP 3: RENDER BACKEND DEPLOYMENT (10 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+□ Go to render.com
+□ Click "Get Started"
+□ Login with GitHub
+□ Authorize Render
+
+□ Click "New +" → "Web Service"
+□ Select "atv-inspection-backend" repo
+□ Click "Connect"
+
+□ Fill form:
+  Name: atv-inspection-api
+  Environment: Python 3
+  Build: pip install -r requirements.txt
+  Start: python backend_main.py
+  Instance: Free tier
+
+□ Click "Create Web Service"
+□ Wait 3-5 minutes for deployment
+□ Watch logs scroll by (normal!)
+
+□ Copy your backend API URL:
+  API URL: _____________________________________
+
+✅ RESULT: Your backend server is live!
+
+
+STEP 4: SUPABASE DATABASE (10 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+□ Go to supabase.com
+□ Click "Start your project"
+□ Login with GitHub
+□ Authorize Supabase
+
+□ Click "New Project"
+□ Fill:
+  Name: atv-inspection
+  Password: _________________________ (save this!)
+  Region: Singapore (or closest to you)
+  Plan: Free tier
+
+□ Click "Create new project"
+□ Wait 2-3 minutes
+
+□ Click "Project Settings" (gear icon)
+□ Click "Database"
+□ Copy Connection String (under URI):
+  PostgreSQL URL: _________________________________
+  (save this somewhere safe!)
+
+✅ RESULT: Your database is ready!
+
+
+STEP 5: CONNECT FRONTEND → BACKEND (5 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+□ Go to GitHub.com → atv-inspection repo
+
+□ Edit Admin-Dashboard-Professional.html:
+  □ Click pencil icon
+  □ Find: const API_URL = 'http://localhost:8000';
+  □ Replace with your Render URL:
+     const API_URL = 'https://atv-inspection-api.onrender.com';
+  □ Click "Commit changes"
+
+□ Edit GY6-Daily-Routine-Check-v2.html:
+  □ Click pencil icon
+  □ Find: const API_URL = 'http://localhost:8000';
+  □ Replace with same Render URL
+  □ Click "Commit changes"
+
+□ Go to Vercel.com → your project
+□ Watch Deployments section
+□ Wait for "READY ✓" (auto-redeploys)
+
+✅ RESULT: Frontend knows where to find backend!
+
+
+STEP 6: TESTING (10 minutes)
+═══════════════════════════════════════════════════════════════════════════
+
+TEST 1: API HEALTH CHECK
+□ Go to: https://atv-inspection-api.onrender.com/api/health
+□ You should see: {"status": "ok"}
+✅ Backend is working!
+
+TEST 2: STAFF FORM SUBMISSION
+□ Go to your staff form URL
+□ Fill in:
+  Staff Name: Test User
+  ATV ID: New-1
+  All 8 checks: Toggle all to ✓
+  Photo: Click camera
+  Condition: Ready to Ride
+□ Click "✅ COMPLETE CHECK (Ready)"
+□ You should see: "✅ Inspection submitted successfully!"
+✅ Form is working!
+
+TEST 3: DASHBOARD DATA
+□ Go to your dashboard URL
+□ Click "INSPECTION HISTORY" tab
+□ You should see your test inspection:
+  - Staff name: Test User
+  - ATV: New-1
+  - All 8 check results
+  - Timestamp
+□ Refresh if needed
+✅ Dashboard is showing data!
+
+═══════════════════════════════════════════════════════════════════════════
+
+🎉 YOU'RE DONE!
+═══════════════════════════════════════════════════════════════════════════
+
+YOUR LIVE SYSTEM:
+
+📋 STAFF FORM (Share via WhatsApp)
+   https://atv-inspection.vercel.app/GY6-Daily-Routine-Check-v2.html
+
+📊 MANAGER DASHBOARD (Bookmark this)
+   https://atv-inspection.vercel.app/Admin-Dashboard-Professional.html
+
+💰 COST: $0/month forever
+
+📈 TOMORROW MORNING:
+   Send form link via WhatsApp → Staff fills it → Manager sees real-time data
+
+
+NEED HELP?
+═══════════════════════════════════════════════════════════════════════════
+
+Common issues:
+
+Form doesn't submit?
+  → Check browser console (F12 → Console)
+  → Make sure API URL is updated in HTML
+  → Wait 30 sec for Render cold start
+
+Dashboard shows no data?
+  → Refresh page (Ctrl+R)
+  → Wait 5 seconds
+  → Check that form actually submitted
+
+API health check errors?
+  → Render might still be starting
+  → Wait 1 minute and try again
+  → Check Render logs for Python errors
+
+
+═══════════════════════════════════════════════════════════════════════════
+SAVE THESE URLS (You'll need them daily)
+═══════════════════════════════════════════════════════════════════════════
+
+Staff Form:
+https://atv-inspection.vercel.app/GY6-Daily-Routine-Check-v2.html
+
+Manager Dashboard:
+https://atv-inspection.vercel.app/Admin-Dashboard-Professional.html
+
+Backend API:
+https://atv-inspection-api.onrender.com/api/health
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Deployment complete! Your system is LIVE! 🚀
+
+═══════════════════════════════════════════════════════════════════════════
