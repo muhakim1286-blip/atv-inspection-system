@@ -2,22 +2,23 @@ services:
   - type: web
     name: atv-inspection-api
     runtime: python
-    plan: starter          # persistent disks require a paid plan - not available on "free"
+    plan: free              # no disk needed anymore - Supabase holds all persistent data
     buildCommand: pip install -r requirements.txt
     startCommand: python backend_main.py
     healthCheckPath: /api/health
-    disk:
-      name: atv-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
-      - key: DB_PATH
-        value: /data/atv_inspections.db
-      - key: UPLOADS_DIR
-        value: /data/uploads
+      - key: DATABASE_URL
+        sync: false          # Supabase > Project Settings > Database > Connection string (URI)
+      - key: SUPABASE_URL
+        sync: false          # Supabase > Project Settings > API > Project URL
+      - key: SUPABASE_SERVICE_KEY
+        sync: false          # Supabase > Project Settings > API > service_role secret key
+      - key: SUPABASE_BUCKET
+        value: "Inspection Photo"
       - key: ALLOWED_ORIGINS
-        value: "*"          # tighten to your Vercel URL(s) once deployed, comma-separated
+        value: "*"           # tighten to your Vercel URL(s) once deployed, comma-separated
 
-# Admin accounts are created via CLI, not an env var - after the first deploy, open this
-# service's "Shell" tab on Render (Starter plan) and run, once per manager:
+# Admin accounts are created via CLI, not an env var. Since all data lives in Supabase
+# (not on Render), you can run this from your own machine (with DATABASE_URL in .env
+# pointing at the same Supabase project) - no need for Render shell access:
 #   python backend_main.py create-user manager@example.com "a-strong-password"
